@@ -1,11 +1,11 @@
 import { View,Text }  from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useBackgroundColor } from '../context/BackgroundColorContext';
+
 // import { useRouter } from 'expo-router';
 
 export default function SwapScreen() {
-  const { bgColor, setBgColor } = useBackgroundColor();
-//   const router = useRouter();
+  const bgColor = '#1D1A37'; 
+ 
 
   return (
     <SafeAreaView className="flex-1 p-8" style={{ backgroundColor: bgColor}}>

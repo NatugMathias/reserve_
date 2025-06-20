@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "CoinVault",
+    "name": "",
     "slug": "CoinVault",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/try.png",
     "scheme": "coinvault",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -32,6 +32,7 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+          
         }
       ]
     ],
