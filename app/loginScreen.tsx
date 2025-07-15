@@ -124,6 +124,8 @@ export default function LoginScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
+      <View className="flex:1"/>
+
       {/* Login Button */}
       <View className="justify-center items-center mt-10 mb-4">
         <TouchableOpacity className="w-80" onPress={handleLogin}>

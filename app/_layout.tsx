@@ -10,6 +10,9 @@ export default function RootLayout() {
       <Stack.Screen name="signupScreen" options={{headerShown:false}}/>
       <Stack.Screen name="emailScreen2" options={{headerShown:false}}/>
       <Stack.Screen name="loginScreen" options={{headerShown:false}}/>
+      <Stack.Screen name="receive" options={{headerShown:false}}/>
+      <Stack.Screen name="buy" options={{headerShown:false}}/>
+      <Stack.Screen name="buynext" options={{headerShown:false}}/>
       <Stack.Screen name="empty" options={{headerShown:false}}/>
       <Stack.Screen name="(tabs)" options={{headerShown:false}}/>
     </Stack>
