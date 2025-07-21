@@ -36,7 +36,7 @@ export default function IconWithLabel1({
   };
 
   return (
-    <View style={styles.container} className='bg-gray-800'>
+    <View style={styles.container} className='border-0  rounded-xl '>
       {renderIcon()}
       <Text style={styles.label}>{label}</Text>
     </View>
@@ -48,10 +48,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 12,
-    // backgroundColor: '#343434',
+    backgroundColor: "rgba(242, 242, 242, 0.2)",
     width: 80,
     height: 80,
-    borderRadius: 20,
+    // borderRadius: 20,
   },
   label: {
     marginTop: 6,
