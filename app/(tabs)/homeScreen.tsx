@@ -3,7 +3,6 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  ScrollView,
   Text,
   View,
   Image,
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import IconWithLabel from "../components/IconWithLabel1";
@@ -21,6 +21,11 @@ import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useTheme } from "../context/themeContext";
 import { useHoldings } from '../context/holdingsContext';
+
+
+
+
+
 
 
 
@@ -43,10 +48,22 @@ export default function HomeScreen() {
   const { backgroundColor } = useTheme();
   const { holdings } = useHoldings();
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState(""); // 👈 Added
+  const [showSearch, setShowSearch] = useState(false); // 👈 Added
+ 
+ 
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     fetchPrices();
-    const interval = setInterval(fetchPrices, 20000);
+    const interval = setInterval(fetchPrices, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -87,6 +104,59 @@ export default function HomeScreen() {
       setLoading(false);
     }
   };
+
+
+// const fetchPrices = async () => {
+//   try {
+//     const ids = tokenList.map((token) => token.id).join(",");
+//     if (!ids) return;
+
+//     const response = await fetch(
+//       `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}`
+//     );
+//     const data = await response.json();
+
+//     if (!Array.isArray(data)) {
+//       throw new Error("Unexpected price data format");
+//     }
+
+//     const updatedPrices = {};
+//     let total = 0;
+//     let totalChange = 0;
+
+//     data.forEach((token) => {
+//       const short = token.symbol.toUpperCase();
+//       const amount = holdings[short] || 0;
+//       const value = token.current_price * amount;
+//       const changeUsd = (token.price_change_percentage_24h * value) / 100;
+
+//       total += value;
+//       totalChange += changeUsd;
+
+//       updatedPrices[short] = {
+//         price: token.current_price,
+//         changePercent: token.price_change_percentage_24h,
+//         image: token.image,
+//       };
+//     });
+
+//     setPrices(updatedPrices);
+//     setTotalValue(total);
+//     setDailyChange(totalChange);
+//   } catch (err) {
+//     console.error("Error fetching prices:", err);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+
+ // 👇 Filter token list based on search query
+  const filteredTokens = tokenList.filter(
+    (token) =>
+      token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      token.short.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderToken = ({ item }) => {
     const short = item.short;
@@ -152,19 +222,37 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <View className="flex-row">
-            <Ionicons name="scan" size={30} color="white" className="mr-4" />
-            <Ionicons name="search" size={30} color="white" className="mr-2" />
+          <View className="flex-row gap-4">
+            <TouchableOpacity onPress={() => router.push("/scanner")}>
+              <Ionicons name="scan" size={30} color="white"/>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowSearch(!showSearch)}>
+              <Ionicons name="search" size={30} color="white" />
+            </TouchableOpacity>
           </View>
         </View>
 
-        <ScrollView
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          className="mt-4 mb-6"
-          style={{ flex: 1 }}
-        >
-          <View style={styles.balanceSummaryWrapper}>
+
+        {/* 👇 Search bar */}
+        {showSearch && (
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search tokens..."
+            placeholderTextColor="#aaa"
+            style={{
+              backgroundColor: "#d2d2d2",
+              color: "#fff",
+              padding: 10,
+              borderRadius: 10,
+              marginTop: 10,
+            }}
+          />
+        )}
+
+        
+        
+          <View style={styles.balanceSummaryWrapper} className="mt-4">
             <View style={styles.balanceSummaryContainer}>
               <Text style={styles.balanceValue}>${totalValue.toFixed(2)}</Text>
               <View style={styles.balanceRow}>
@@ -223,7 +311,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-           <View style={{ width: "100%", marginTop: 20 }}>
+           {/* <View style={{ width: "100%", marginTop: 20 }}>
             <Text style={styles.tokenHeader}>Tokens</Text>
             {loading ? (
               <ActivityIndicator
@@ -233,16 +321,21 @@ export default function HomeScreen() {
               />
             ) : (
               <FlatList
-                data={tokenList}
+                data={filteredTokens}
                 keyExtractor={(item) => item.id}
                 renderItem={renderToken}
                 contentContainerStyle={{ paddingVertical: 20 }}
               />
             )}
-          </View> 
-        </ScrollView>
+          </View>  */}
+
+    
+
+
+       
       </SafeAreaView>
       <StatusBar barStyle="light-content" />
+     
     </>
   );
 }
@@ -315,3 +408,5 @@ const styles = StyleSheet.create({
     color: "#ccc",
   },
 });
+
+

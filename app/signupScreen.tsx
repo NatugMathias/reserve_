@@ -65,7 +65,7 @@ export default function SignupScreen() {
     <SafeAreaView className="flex-1 p-0" style={{ backgroundColor: '#1D1A37' }}>
       {/* Back Button */}
       <View className="w-10 h-10 rounded-full items-center justify-center ml-4 mt-4" style={{ backgroundColor: '#1D1A37' }}>
-        <Pressable onPress={() => router.back()}>
+        <Pressable onPress={() => router.push('/emailScreen1')}>
           <Ionicons name="arrow-back" size={24} color="purple" />
         </Pressable>
       </View>

@@ -24,6 +24,7 @@ export default function RootLayout() {
       <Stack.Screen name="send" options={{headerShown:false}}/>
       <Stack.Screen name="selectAccount" options={{headerShown:false}}/>
       <Stack.Screen name="sendAmount" options={{headerShown:false}}/>
+      <Stack.Screen name="scanner" options={{headerShown:false}}/>
       <Stack.Screen name="empty" options={{headerShown:false}}/>
       <Stack.Screen name="(tabs)" options={{headerShown:false}}/>
     </Stack>

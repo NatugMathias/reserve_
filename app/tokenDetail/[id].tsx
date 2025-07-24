@@ -1,6 +1,6 @@
 
 
-// app/tokenDetail/[id].tsx
+//app/tokenDetail/[id].tsx
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -37,30 +37,111 @@ export default function TokenDetailScreen() {
     '30D': 30,
   };
 
-  const fetchData = async () => {
-    if (!id) return;
+  // const fetchData = async () => {
+  //   if (!id) return;
 
-    try {
-      setLoading(true);
+  //   try {
+  //     setLoading(true);
 
-      const [chartRes, infoRes] = await Promise.all([
-        fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${rangeToDays[selectedRange]}`),
-        fetch(`https://api.coingecko.com/api/v3/coins/${id}`),
-      ]);
+  //     const [chartRes, infoRes] = await Promise.all([
+  //       fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${rangeToDays[selectedRange]}`),
+  //       fetch(`https://api.coingecko.com/api/v3/coins/${id}`),
+  //     ]);
 
-      const chartJson = await chartRes.json();
-      const infoJson = await infoRes.json();
+  //     const chartJson = await chartRes.json();
+  //     const infoJson = await infoRes.json();
 
-      const prices = chartJson.prices.map((entry: number[]) => entry[1]);
+  //     const prices = chartJson.prices.map((entry: number[]) => entry[1]);
 
-      setChartData(prices);
-      setTokenInfo(infoJson);
-    } catch (err) {
-      console.error('Error fetching token data:', err);
-    } finally {
-      setLoading(false);
+  //     setChartData(prices);
+  //     setTokenInfo(infoJson);
+  //   } catch (err) {
+  //     console.error('Error fetching token data:', err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+// const fetchData = async () => {
+//   if (!id) return;
+
+//   try {
+//     setLoading(true);
+
+//     const [chartRes, infoRes] = await Promise.all([
+//       fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${rangeToDays[selectedRange]}`),
+//       fetch(`https://api.coingecko.com/api/v3/coins/${id}`),
+//     ]);
+
+//     const chartJson = await chartRes.json();
+//     const infoJson = await infoRes.json();
+
+//     if (!Array.isArray(chartJson.prices)) {
+//       throw new Error("Invalid chart data");
+//     }
+
+//     const prices = chartJson.prices.map((entry: number[]) => entry[1]);
+
+//     setChartData(prices);
+//     setTokenInfo(infoJson);
+//   } catch (err) {
+//     console.error('Error fetching token data:', err);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+
+
+
+const fetchData = async () => {
+  if (!id) return;
+
+  let chartRes, infoRes;
+
+  try {
+    setLoading(true);
+
+    [chartRes, infoRes] = await Promise.all([
+      fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${rangeToDays[selectedRange]}`),
+      fetch(`https://api.coingecko.com/api/v3/coins/${id}`),
+    ]);
+
+    if (!chartRes.ok || !infoRes.ok) {
+      throw new Error("One or both API responses failed.");
     }
-  };
+
+    const chartJson = await chartRes.json();
+    const infoJson = await infoRes.json();
+
+    if (!Array.isArray(chartJson.prices)) {
+      throw new Error("Invalid chart data format.");
+    }
+
+    const prices = chartJson.prices.map((entry: number[]) => entry[1]);
+
+    setChartData(prices);
+    setTokenInfo(infoJson);
+  } catch (err) {
+    console.error('Error fetching token data:', err);
+
+    // Log raw API text if available
+    try {
+      const chartText = chartRes && (await chartRes.text());
+      const infoText = infoRes && (await infoRes.text());
+      console.log("Chart API response:", chartText);
+      console.log("Info API response:", infoText);
+    } catch (extraErr) {
+      console.error("Error reading raw API response:", extraErr);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
 
   useEffect(() => {
     fetchData();

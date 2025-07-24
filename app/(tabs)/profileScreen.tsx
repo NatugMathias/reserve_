@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   View,
@@ -11,21 +11,89 @@ import {
   ScrollView,
   Modal,
   FlatList,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useProfile } from '../context/profileContext';
 import { useTheme } from '../context/themeContext';
+import {useRouter} from 'expo-router'
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-notifications';
+
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+  }),
+});
+
+
 
 export default function ProfileScreen() {
   // const defaultColor = '#1D1A37';
+
+  const router = useRouter();
   const { backgroundColor, setBackgroundColor } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
 
   const { profileImage, setProfileImage, username, setUsername } = useProfile();
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
+
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = (value: boolean) => {
+  setIsEnabled(value);
+  if (value) {
+    router.push('/signupScreen'); // or your actual route
+  }
+};
+
+const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+useEffect(() => {
+  const schedule = async () => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "🔔 Reminder",
+        body: "🧭 “Lost? Your wallet’s just a tap away.” ",
+      },
+      trigger: {
+        seconds: 3600,
+        repeats: true,
+      },
+    });
+  };
+  // Prevent double scheduling
+  schedule();
+// Optional: Clear previous scheduled notifications on load
+  return () => {
+    Notifications.cancelAllScheduledNotificationsAsync();
+  };
+}, []);
+
+const cancelAllNotifications = async () => {
+  await Notifications.cancelAllScheduledNotificationsAsync();
+};
+
+
+useEffect(() => {
+  const setupNotifications = async () => {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') return;
+
+    if (notificationsEnabled) {
+      await scheduleNotification();
+    } else {
+      await cancelAllNotifications();
+    }
+  };
+
+  setupNotifications();
+}, [notificationsEnabled]);
+
 
   const askPermission = async () => {
     const mediaPerm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -207,6 +275,44 @@ export default function ProfileScreen() {
                 />
               )}
             />
+            <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 20 }}>Notifications:</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 20,
+                // paddingHorizontal: 20,
+                width: '100%',
+              }}
+            >
+              <Text style={{color: 'gray', marginBottom: 8,fontWeight: 'bold', }}>Notifications</Text>
+              <Switch
+                trackColor={{ false: '#767577', true: 'skyblue' }}
+                thumbColor="#fff"
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={setNotificationsEnabled}
+                value={notificationsEnabled}
+              />
+            </View>
+
+
+            <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop:10 }}>Logout:</Text>
+             {/* 👇 Add this toggle just below logout */}
+  <View style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', }}>
+    <Text style={{ color: 'gray', marginBottom: 8,fontWeight: 'bold', }}>Toggle to logout</Text>
+    <Switch
+      trackColor={{ false: '#767577', true: 'skyblue' }}
+      thumbColor={'#fff'}
+      ios_backgroundColor="#3e3e3e"
+      onValueChange={(value) => {
+        if (value) router.push('/');
+      }}
+      value={false}
+    />
+  </View>
+              
+
             <TouchableOpacity onPress={() => setModalVisible(false)} style={{ marginTop: 20, alignSelf: 'flex-end' }}>
               <Text style={{ color: 'blue', fontSize: 16 }}>Close</Text>
             </TouchableOpacity>
