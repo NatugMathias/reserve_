@@ -1,6 +1,36 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import {
   Text,
@@ -14,20 +44,14 @@ import {
   TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import IconWithLabel from "../components/IconWithLabel1";
-import { useProfile } from "../context/profileContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+
+import IconWithLabel from "../components/IconWithLabel1";
+import { useProfile } from "../context/profileContext";
 import { useTheme } from "../context/themeContext";
-import { useHoldings } from '../context/holdingsContext';
-
-
-
-
-
-
-
+import { useHoldings } from "../context/holdingsContext";
 
 const tokenList = [
   { name: "Bitcoin", id: "bitcoin", short: "BTC" },
@@ -48,18 +72,8 @@ export default function HomeScreen() {
   const { backgroundColor } = useTheme();
   const { holdings } = useHoldings();
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState(""); // 👈 Added
-  const [showSearch, setShowSearch] = useState(false); // 👈 Added
- 
- 
-
-
-
-
-
-
-
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     fetchPrices();
@@ -105,53 +119,6 @@ export default function HomeScreen() {
     }
   };
 
-
-// const fetchPrices = async () => {
-//   try {
-//     const ids = tokenList.map((token) => token.id).join(",");
-//     if (!ids) return;
-
-//     const response = await fetch(
-//       `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}`
-//     );
-//     const data = await response.json();
-
-//     if (!Array.isArray(data)) {
-//       throw new Error("Unexpected price data format");
-//     }
-
-//     const updatedPrices = {};
-//     let total = 0;
-//     let totalChange = 0;
-
-//     data.forEach((token) => {
-//       const short = token.symbol.toUpperCase();
-//       const amount = holdings[short] || 0;
-//       const value = token.current_price * amount;
-//       const changeUsd = (token.price_change_percentage_24h * value) / 100;
-
-//       total += value;
-//       totalChange += changeUsd;
-
-//       updatedPrices[short] = {
-//         price: token.current_price,
-//         changePercent: token.price_change_percentage_24h,
-//         image: token.image,
-//       };
-//     });
-
-//     setPrices(updatedPrices);
-//     setTotalValue(total);
-//     setDailyChange(totalChange);
-//   } catch (err) {
-//     console.error("Error fetching prices:", err);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-
- // 👇 Filter token list based on search query
   const filteredTokens = tokenList.filter(
     (token) =>
       token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -170,8 +137,7 @@ export default function HomeScreen() {
     return (
       <TouchableOpacity
         style={styles.tokenItem}
-      onPress={() => router.push(`/tokenDetail/${item.id}`)}
-
+        onPress={() => router.push(`/tokenDetail/${item.id}`)}
       >
         {image && <Image source={{ uri: image }} style={styles.tokenIcon} />}
         <View style={{ flex: 1, marginLeft: 10 }}>
@@ -197,145 +163,148 @@ export default function HomeScreen() {
 
   return (
     <>
-      <SafeAreaView
-        edges={["top", "bottom"]}
-        className="flex-1"
-        style={{ paddingHorizontal: 10, paddingBottom: 20, backgroundColor }}
-      >
-        <View className="flex-row justify-between mt-6 items-center">
-          <View className="flex-row gap-2 items-center">
-            <View>
-              {profileImage ? (
-                <Image
-                  source={{ uri: profileImage }}
-                  style={{ width: 50, height: 50, borderRadius: 25 }}
+      <SafeAreaView style={{ flex: 1, backgroundColor, paddingHorizontal: 10 }} className="mb-4">
+        {/* Top Profile */}
+              <View className="flex-row justify-between mt-6 items-center">
+                <View className="flex-row gap-2 items-center pb-4">
+                  <View>
+                    {profileImage ? (
+                      <Image
+                        source={{ uri: profileImage }}
+                        style={{ width: 50, height: 50, borderRadius: 25 }}
+                      />
+                    ) : (
+                      <Text style={{ color: "white", fontSize: 24 }}>HI</Text>
+                    )}
+                  </View>
+                  <View>
+                    <Text style={{ color: "gray", fontSize: 20 }}>
+                      Welcome!
+                    </Text>
+                    <Text style={{ color: "white", fontSize: 16 }}>
+                      {username || "Username"}
+                    </Text>
+                  </View>
+                </View>
+
+                <View className="flex-row gap-4">
+                  <TouchableOpacity onPress={() => router.push("/scanner")}>
+                    <Ionicons name="scan" size={30} color="white" />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowSearch(!showSearch)}>
+                    <Ionicons name="search" size={30} color="white" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Search */}
+              {showSearch && (
+                <TextInput
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  placeholder="Search tokens..."
+                  placeholderTextColor="#aaa"
+                  style={{
+                    backgroundColor: "#d2d2d2",
+                    color: "#fff",
+                    padding: 10,
+                    borderRadius: 10,
+                    marginTop: 10,
+                  }}
                 />
-              ) : (
-                <Text style={{ color: "white", fontSize: 24 }}>HI</Text>
+              )}
+
+
+        <FlatList
+          data={filteredTokens}
+          keyExtractor={(item) => item.id}
+          renderItem={renderToken}
+          contentContainerStyle={{ paddingBottom: 50 }}
+          ListHeaderComponent={() => (
+            <View>
+              
+
+              {/* Balance Summary */}
+              <View style={styles.balanceSummaryWrapper} className="mt-4">
+                <View style={styles.balanceSummaryContainer}>
+                  <Text style={styles.balanceValue}>
+                    ${totalValue.toFixed(2)}
+                  </Text>
+                  <View style={styles.balanceRow}>
+                    <Text
+                      style={[
+                        styles.subValue,
+                        { color: dailyChange >= 0 ? "#3FD88C" : "#F75B5B" },
+                      ]}
+                    >
+                      {dailyChange >= 0 ? "+" : "-"}$
+                      {Math.abs(dailyChange).toFixed(2)}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.percentageValue,
+                        { color: dailyChange >= 0 ? "#3FD88C" : "#F75B5B" },
+                      ]}
+                    >
+                      {totalValue !== 0
+                        ? `${(
+                            (dailyChange / (totalValue - dailyChange)) *
+                            100
+                          ).toFixed(2)}%`
+                        : "0%"}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Actions */}
+              <View className="flex-row justify-between mt-10 mb-2">
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("receive")}
+                >
+                  <IconWithLabel
+                    iconLibrary="AntDesign"
+                    iconName="qrcode"
+                    label="Receive"
+                    color="skyblue"
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => navigation.navigate("send")}>
+                  <IconWithLabel
+                    iconLibrary="Feather"
+                    iconName="send"
+                    label="Send"
+                    color="skyblue"
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => navigation.navigate("buy")}>
+                  <IconWithLabel
+                    iconLibrary="Feather"
+                    iconName="dollar-sign"
+                    label="Buy"
+                    color="skyblue"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              {/* Token Header */}
+              <Text style={styles.tokenHeader}>Tokens</Text>
+
+              {loading && (
+                <ActivityIndicator
+                  size="small"
+                  color="#fff"
+                  style={{ marginTop: 20 }}
+                />
               )}
             </View>
-            <View>
-              <Text style={{ color: "gray", fontSize: 20 }}>Welcome!</Text>
-              <Text style={{ color: "white", fontSize: 16 }}>
-                {username || "Username"}
-              </Text>
-            </View>
-          </View>
-
-          <View className="flex-row gap-4">
-            <TouchableOpacity onPress={() => router.push("/scanner")}>
-              <Ionicons name="scan" size={30} color="white"/>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setShowSearch(!showSearch)}>
-              <Ionicons name="search" size={30} color="white" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-
-        {/* 👇 Search bar */}
-        {showSearch && (
-          <TextInput
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Search tokens..."
-            placeholderTextColor="#aaa"
-            style={{
-              backgroundColor: "#d2d2d2",
-              color: "#fff",
-              padding: 10,
-              borderRadius: 10,
-              marginTop: 10,
-            }}
-          />
-        )}
-
-        
-        
-          <View style={styles.balanceSummaryWrapper} className="mt-4">
-            <View style={styles.balanceSummaryContainer}>
-              <Text style={styles.balanceValue}>${totalValue.toFixed(2)}</Text>
-              <View style={styles.balanceRow}>
-                <Text
-                  style={[
-                    styles.subValue,
-                    { color: dailyChange >= 0 ? "#3FD88C" : "#F75B5B" },
-                  ]}
-                >
-                  {dailyChange >= 0 ? "+" : "-"}$
-                  {Math.abs(dailyChange).toFixed(2)}
-                </Text>
-                <Text
-                  style={[
-                    styles.percentageValue,
-                    { color: dailyChange >= 0 ? "#3FD88C" : "#F75B5B" },
-                  ]}
-                >
-                  {totalValue !== 0
-                    ? `${(
-                        (dailyChange / (totalValue - dailyChange)) *
-                        100
-                      ).toFixed(2)}%`
-                    : "0%"}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <View className="flex-row justify-between mt-10 mb-2">
-            <TouchableOpacity onPress={() => navigation.navigate("receive")}>
-              <IconWithLabel
-                iconLibrary="AntDesign"
-                iconName="qrcode"
-                label="Receive"
-                color="skyblue"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => navigation.navigate("send")}>
-              <IconWithLabel
-                iconLibrary="Feather"
-                iconName="send"
-                label="Send"
-                color="skyblue"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => navigation.navigate("buy")}>
-              <IconWithLabel
-                iconLibrary="Feather"
-                iconName="dollar-sign"
-                label="Buy"
-                color="skyblue"
-              />
-            </TouchableOpacity>
-          </View>
-
-           {/* <View style={{ width: "100%", marginTop: 20 }}>
-            <Text style={styles.tokenHeader}>Tokens</Text>
-            {loading ? (
-              <ActivityIndicator
-                size="small"
-                color="#fff"
-                style={{ marginTop: 20 }}
-              />
-            ) : (
-              <FlatList
-                data={filteredTokens}
-                keyExtractor={(item) => item.id}
-                renderItem={renderToken}
-                contentContainerStyle={{ paddingVertical: 20 }}
-              />
-            )}
-          </View>  */}
-
-    
-
-
-       
+          )}
+           showsVerticalScrollIndicator={false}
+        />
       </SafeAreaView>
       <StatusBar barStyle="light-content" />
-     
     </>
   );
 }
@@ -408,5 +377,4 @@ const styles = StyleSheet.create({
     color: "#ccc",
   },
 });
-
 
